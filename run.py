@@ -3,7 +3,9 @@ from flask_migrate import Migrate
 
 # Création de l'application Flask
 app = create_app()
-
+def create_tables():
+    db.create_all()
+    
 # Configuration de Flask-Migrate pour gérer les migrations de la base de données
 migrate = Migrate(app, db)
 

@@ -1,4 +1,5 @@
 migrations
+venv
 .env
 tests
 app/__pycache__
