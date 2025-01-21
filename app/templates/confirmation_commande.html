@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmation de commande</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <main class="container py-5">
+        <h1 class="text-center">Merci pour votre commande</h1>
+        <p class="lead text-center">Votre commande a été passée avec succès. Voici un résumé :</p>
+
+        <!-- Détails de l'utilisateur -->
+        <section class="my-4">
+            <h2>Vos informations</h2>
+            <p><strong>Nom :</strong> {{ utilisateur.nom }} {{ utilisateur.prenom }}</p>
+            <p><strong>Email :</strong> {{ utilisateur.email }}</p>
+            <p><strong>Téléphone :</strong> {{ utilisateur.telephone }}</p>
+            <p><strong>Adresse :</strong> {{ utilisateur.adresse }}</p>
+        </section>
+
+        <!-- Récapitulatif des produits -->
+        <section class="my-4">
+            <h2>Récapitulatif des produits</h2>
+            <table class="table table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Produit</th>
+                        <th>Description</th>
+                        <th>Quantité</th>
+                        <th>Prix Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in panier %}
+                    <tr>
+                        <td>{{ item.nom }}</td>
+                        <td>{{ item.description }}</td>
+                        <td>{{ item.quantite }}</td>
+                        <td>{{ item.prix * item.quantite }} FCFA</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Total général -->
+        <section class="my-4">
+            <p><strong>Total général :</strong> {{ total_general }} FCFA</p>
+        </section>
+
+        <!-- Bouton OK -->
+        <div class="text-center">
+            <button class="btn btn-primary" onclick="window.location.href='{{ url_for('main.panier') }}'">OK</button>
+        </div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

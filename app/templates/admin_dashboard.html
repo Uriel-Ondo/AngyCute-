@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Tableau de Bord Administrateur{% endblock %}
+
+{% block content %}
+<!-- Tableau de Bord Section -->
+<section class="container py-5">
+    <h1 class="text-center mb-5">Tableau de Bord Administrateur</h1>
+    
+    <!-- Liste des Utilisateurs -->
+    <h2>Liste des Utilisateurs</h2>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Email</th>
+                    <th>Rôle</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for utilisateur in utilisateurs %}
+                <tr>
+                    <td>{{ utilisateur.nom }}</td>
+                    <td>{{ utilisateur.prenom }}</td>
+                    <td>{{ utilisateur.email }}</td>
+                    <td>{{ utilisateur.role }}</td>
+                    <td>
+                        <form action="{{ url_for('admin.supprimer_utilisateur', id=utilisateur.id) }}" method="post">
+                            <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p>Total Utilisateurs: {{ total_utilisateurs }}</p>
+    <div class="pagination-wrapper">
+        <ul class="pagination">
+            {% if page > 1 %}
+            <li class="page-item">
+                <a href="{{ url_for('admin.admin_dashboard', page=page-1) }}" class="page-link">Précédent</a>
+            </li>
+            {% endif %}
+            {% if total_utilisateurs > page * 10 %}
+            <li class="page-item">
+                <a href="{{ url_for('admin.admin_dashboard', page=page+1) }}" class="page-link">Suivant</a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <!-- Créer un Utilisateur -->
+    <h2 class="mt-5">Créer un Utilisateur</h2>
+    <div>
+        <form action="{{ url_for('admin.create_user') }}" method="post">
+            <div class="mb-3">
+                <label for="nom" class="form-label">Nom :</label>
+                <input type="text" id="nom" name="nom" required class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="prenom" class="form-label">Prénom :</label>
+                <input type="text" id="prenom" name="prenom" required class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email :</label>
+                <input type="email" id="email" name="email" required class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="telephone" class="form-label">Téléphone :</label>
+                <input type="text" id="telephone" name="telephone" required class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="adresse" class="form-label">Adresse :</label>
+                <textarea id="adresse" name="adresse" required class="form-control"></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="role" class="form-label">Rôle :</label>
+                <select id="role" name="role" required class="form-select">
+                    <option value="user">Utilisateur</option>
+                    <option value="admin">Administrateur</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="mot_de_passe" class="form-label">Mot de Passe :</label>
+                <input type="password" id="mot_de_passe" name="mot_de_passe" required class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="confirmation_mot_de_passe" class="form-label">Confirmer Mot de Passe :</label>
+                <input type="password" id="confirmation_mot_de_passe" name="confirmation_mot_de_passe" required class="form-control">
+            </div>
+            <div>
+                <button type="submit" class="btn btn-success">Créer</button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

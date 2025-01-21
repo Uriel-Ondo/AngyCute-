@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-primary text-white text-center py-5">
+    <div class="container">
+        <h1>Bienvenue sur notre boutique en ligne</h1>
+        <p>Découvrez nos produits populaires et nos offres exclusives.</p>
+    </div>
+</section>
+
+<!-- Produits Populaires Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="mb-4">Produits populaires</h2>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for produit in produits_populaires %}
+            <div class="col">
+                <div class="card shadow-sm">
+                    <img src="{{ url_for('static', filename='uploads/' ~ produit.image_path) }}" class="card-img-top" alt="{{ produit.nom }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ produit.nom }}</h5>
+                        <p class="card-text">{{ produit.prix }} XAF</p>
+                        <p class="card-text">{{ produit.description }}</p>
+                        <a href="{{ url_for('main.ajouter_panier', produit_id=produit.id) }}" class="btn btn-primary">Ajouter au panier</a>
+                        {% if session.get('user_role') == 'admin' %}
+                        <a href="{{ url_for('admin.supprimer_produit_populaire', id=produit.id) }}" class="btn btn-danger mt-2">Retirer des populaires</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

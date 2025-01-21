@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Mon Panier{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-primary text-white text-center py-5">
+    <div class="container">
+        <h1>Votre Panier</h1>
+    </div>
+</section>
+
+<!-- Panier Section -->
+<section class="py-5">
+    <div class="container">
+        {% if panier %}
+        <table class="table table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Produit</th>
+                    <th>Prix Unitaire</th>
+                    <th>Quantité</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in panier %}
+                <tr>
+                    <td>{{ item.produit.nom }}</td> <!-- Corrigé: item.produit.nom -->
+                    <td>{{ item.produit.prix }} XAF</td> <!-- Corrigé: item.produit.prix -->
+                    <td>{{ item.quantite }}</td>
+                    <td>{{ item.produit.prix * item.quantite }} XAF</td> <!-- Corrigé: item.produit.prix * item.quantite -->
+                    <td>
+                        <a href="{{ url_for('main.supprimer_panier', id=item.id) }}" class="btn btn-danger btn-sm">Supprimer</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3"><strong>Total Général</strong></td>
+                    <td colspan="2">{{ total_general }} XAF</td>
+                </tr>
+            </tfoot>
+        </table>
+        <form action="{{ url_for('main.commander') }}" method="POST">
+            <button type="submit" class="btn btn-success">Passer la commande</button>
+        </form>
+        {% else %}
+        <p>Votre panier est vide.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

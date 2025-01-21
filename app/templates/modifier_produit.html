@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Modifier Produit{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+    <h2 class="mb-4">Modifier Produit</h2>
+    <form action="{{ url_for('admin.modifier_produit', id=produit.id) }}" method="post" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="nom" class="form-label">Nom :</label>
+            <input type="text" id="nom" name="nom" class="form-control" required value="{{ produit.nom }}">
+        </div>
+        <div class="mb-3">
+            <label for="prix" class="form-label">Prix :</label>
+            <input type="number" step="0.01" id="prix" name="prix" class="form-control" required value="{{ produit.prix }}">
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description :</label>
+            <textarea id="description" name="description" class="form-control" rows="5" required>{{ produit.description }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="image" class="form-label">Image :</label>
+            <input type="file" id="image" name="image" class="form-control" accept="image/*">
+            {% if produit.image_path %}
+            <img src="{{ url_for('static', filename='uploads/' ~ produit.image_path) }}" alt="{{ produit.nom }}" class="img-thumbnail mt-2" width="200">
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            <label for="categorie" class="form-label">Catégorie :</label>
+            <select id="categorie" name="categorie" class="form-select" required>
+                <option value="">-- Sélectionnez une catégorie --</option>
+                <option value="Mode (Homme)" {% if produit.categorie == 'Mode (Homme)' %}selected{% endif %}>Mode (Homme)</option>
+                <option value="Mode (Femme)" {% if produit.categorie == 'Mode (Femme)' %}selected{% endif %}>Mode (Femme)</option>
+                <option value="Mode (Enfant)" {% if produit.categorie == 'Mode (Enfant)' %}selected{% endif %}>Mode (Enfant)</option>
+                <option value="Santé & Beauté (Maquillage)" {% if produit.categorie == 'Santé & Beauté (Maquillage)' %}selected{% endif %}>Santé & Beauté (Maquillage)</option>
+                <option value="Santé & Beauté (Soins)" {% if produit.categorie == 'Santé & Beauté (Soins)' %}selected{% endif %}>Santé & Beauté (Soins)</option>
+                <option value="Santé & Beauté (Parfum)" {% if produit.categorie == 'Santé & Beauté (Parfum)' %}selected{% endif %}>Santé & Beauté (Parfum)</option>
+                <option value="Maison & Bureau" {% if produit.categorie == 'Maison & Bureau' %}selected{% endif %}>Maison & Bureau</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <button type="submit" class="btn btn-success">Mettre à jour</button>
+        </div>
+    </form>
+</section>
+{% endblock %}

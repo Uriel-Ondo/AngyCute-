@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Produits - {{ categorie }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="container py-5">
+    <div class="text-center mb-5">
+        <h1>Produits - {{ categorie }}</h1>
+        <form action="/recherche" method="get" class="d-flex justify-content-center">
+            <input type="search" name="q" placeholder="Rechercher un produit..." aria-label="Rechercher" class="form-control w-50">
+            <button type="submit" class="btn btn-primary ms-2">Rechercher</button>
+        </form>
+    </div>
+</section>
+
+<!-- Produits Section -->
+<section class="container py-5">
+    <div>
+        <div class="row">
+            {% if produits %}
+                {% for produit in produits %}
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='uploads/' ~ produit.image_path) }}" alt="{{ produit.nom }}" class="card-img-top">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ produit.nom }}</h5>
+                            <p class="card-text"><strong>{{ produit.prix }} XAF</strong></p>
+                            <p class="card-text">{{ produit.description }}</p>
+                            <div>
+                                <a href="{{ url_for('main.ajouter_panier', produit_id=produit.id) }}" class="btn btn-success">Ajouter au panier</a>
+                                {% if session.get('user_role') == 'admin' %}
+                                <div class="mt-2">
+                                    <a href="{{ url_for('admin.modifier_produit', id=produit.id) }}" class="btn btn-warning btn-sm">Modifier</a>
+                                    <a href="{{ url_for('admin.supprimer_produit', id=produit.id) }}" class="btn btn-danger btn-sm">Supprimer</a>
+                                    <a href="{{ url_for('admin.rendre_populaire', id=produit.id) }}" class="btn btn-info btn-sm">Rendre Populaire</a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>Aucun produit trouvé dans cette catégorie.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% if session.get('user_role') == 'admin' %}
+<h2 class="mt-5">Ajouter un Produit</h2>
+<div class="container">
+    <form action="{{ url_for('admin.ajouter_produit') }}" method="post" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="nom" class="form-label">Nom :</label>
+            <input type="text" id="nom" name="nom" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="prix" class="form-label">Prix :</label>
+            <input type="number" step="0.01" id="prix" name="prix" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description :</label>
+            <textarea id="description" name="description" class="form-control" rows="5" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="image" class="form-label">Image :</label>
+            <input type="file" id="image" name="image" class="form-control" accept="image/*" required>
+        </div>
+        <div class="mb-3">
+            <label for="categorie" class="form-label">Catégorie :</label>
+            <select id="categorie" name="categorie" class="form-select" required>
+                <option value="">-- Sélectionnez une catégorie --</option>
+                <option value="Mode (Homme)">Mode (Homme)</option>
+                <option value="Mode (Femme)">Mode (Femme)</option>
+                <option value="Mode (Enfant)">Mode (Enfant)</option>
+                <option value="Santé & Beauté (Maquillage)">Santé & Beauté (Maquillage)</option>
+                <option value="Santé & Beauté (Soins)">Santé & Beauté (Soins)</option>
+                <option value="Santé & Beauté (Parfum)">Santé & Beauté (Parfum)</option>
+                <option value="Maison & Bureau">Maison & Bureau</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <button type="submit" class="btn btn-success">Ajouter</button>
+        </div>
+    </form>            
+</div>
+{% endif %}
+{% endblock %}
