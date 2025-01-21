@@ -74,21 +74,38 @@ def supprimer_utilisateur(id):
 @login_required
 @admin_required
 def ajouter_produit():
+    # Récupération des données du formulaire
     nom = request.form['nom']
     prix = request.form['prix']
     description = request.form['description']
     categorie = request.form.get('categorie')
     image = request.files.get('image')
 
+    # Vérification de l'image
     if not image or not allowed_file(image.filename):
         flash("Format d'image non autorisé ou image absente.")
         return redirect(url_for('main.produits'))
 
+    # Sauvegarde de l'image
     filename = secure_filename(image.filename)
     image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
     image.save(image_path)
 
-    produit = Produit(nom=nom, prix=prix, description=description, image_path=filename, categorie=categorie)
+    # Récupération de l'ID de l'administrateur connecté depuis la session
+    admin_id = session.get('user_id')
+    if not admin_id:
+        flash("Une erreur est survenue. Veuillez vous reconnecter.", 'error')
+        return redirect(url_for('main.produits'))
+
+    # Création du produit avec admin_id
+    produit = Produit(
+        nom=nom,
+        prix=prix,
+        description=description,
+        image_path=filename,
+        categorie=categorie,
+        admin_id=admin_id  # Ajout de l'administrateur
+    )
     db.session.add(produit)
     db.session.commit()
 
