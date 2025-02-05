@@ -3,7 +3,7 @@
 {% block title %}Modifier Produit{% endblock %}
 
 {% block content %}
-<section class="container py-5">
+<section class="container py-3">
     <h2 class="mb-4">Modifier Produit</h2>
     <form action="{{ url_for('admin.modifier_produit', id=produit.id) }}" method="post" enctype="multipart/form-data">
         <div class="mb-3">

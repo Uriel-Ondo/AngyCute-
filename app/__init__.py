@@ -6,6 +6,7 @@ import os
 from dotenv import load_dotenv
 
 
+
 # Charger les variables d'environnement depuis le fichier .env
 load_dotenv()
 
@@ -44,6 +45,12 @@ def create_app():
     app.register_blueprint(main_blueprint)
     from app.routes.admin_routes import admin as admin_blueprint
     app.register_blueprint(admin_blueprint, url_prefix='/admin')
+    
+    # Importer les blueprints
+    from app.routes.errors_routes import errors
+    
+    # Enregistrer les blueprints
+    app.register_blueprint(errors) 
 
     return app
 

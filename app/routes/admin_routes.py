@@ -7,6 +7,7 @@ from app.utils import login_required, admin_required, allowed_file
 from app.models import Produit, Utilisateur, Panier, db
 import os
 
+
 admin = Blueprint('admin', __name__)
 
 # Tableau de bord

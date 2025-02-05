@@ -3,33 +3,41 @@
 {% block title %}Contactez-nous{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
 <section>
-    <div class="container py-5">
+    <div class="container py-3">
         <h1 class="text-center mb-4">Nous contacter</h1>
         <p class="text-center">Avez-vous des questions ou des préoccupations ? Remplissez le formulaire ci-dessous et nous vous répondrons rapidement.</p>
     </div>
 </section>
 
-<!-- Contact Form Section -->
 <section>
     <div class="container py-5">
         <h2 class="mb-4">Formulaire de contact</h2>
-        <form method="POST" action="{{ url_for('main.contact') }}">
-            <div class="form-group">
-                <label for="nom">Nom :</label>
-                <input type="text" name="nom" id="nom" class="form-control" placeholder="Votre nom" required>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+                {{ form.nom.label(class="form-label") }}
+                {{ form.nom(class="form-control", placeholder="Votre nom") }}
             </div>
-            <div class="form-group">
-                <label for="email">Email :</label>
-                <input type="email" name="email" id="email" class="form-control" placeholder="Votre email" required>
+
+            <div class="mb-3">
+                {{ form.email.label(class="form-label") }}
+                {{ form.email(class="form-control", placeholder="Votre email") }}
             </div>
-            <div class="form-group">
-                <label for="message">Message :</label>
-                <textarea name="message" id="message" class="form-control" rows="5" placeholder="Votre message" required></textarea>
+
+            <div class="mb-3">
+                {{ form.sujet.label(class="form-label") }}
+                {{ form.sujet(class="form-control", placeholder="Sujet du message") }}
             </div>
-            <div>
-                <button type="submit" class="btn btn-primary">Envoyer</button>
+
+            <div class="mb-3">
+                {{ form.message.label(class="form-label") }}
+                {{ form.message(class="form-control", placeholder="Votre message", rows=5) }}
+            </div>
+
+            <div class="d-grid">
+                {{ form.submit(class="btn btn-primary") }}
             </div>
         </form>
     </div>

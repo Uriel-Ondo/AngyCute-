@@ -4,19 +4,19 @@
 
 {% block content %}
 <!-- Hero Section -->
-<section class="bg-primary text-white text-center py-5">
+<section class="bg text-black text-center py-3">
     <div class="container">
-        <h1>Liste des Produits</h1>
         <!-- Barre de recherche -->
         <form action="/recherche" method="get" class="d-flex justify-content-center mt-4">
             <input type="search" name="q" class="form-control w-50" placeholder="Rechercher un produit..." required>
-            <button type="submit" class="btn btn-light ms-2">Rechercher</button>
+            <button type="submit" class="btn btn-primary ms-2">Rechercher</button>
         </form>
     </div>
 </section>
 
 <!-- Produits Section -->
-<section class="py-5">
+<section class="py-3">
+    <h1 class="text-center">Liste des Produits</h1>
     <div class="container">
         {% if produits_par_categorie %}
             {% for categorie, produits in produits_par_categorie.items() %}

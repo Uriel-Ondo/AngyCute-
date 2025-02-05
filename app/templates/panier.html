@@ -4,14 +4,14 @@
 
 {% block content %}
 <!-- Hero Section -->
-<section class="bg-primary text-white text-center py-5">
+<section class="bg-primary text-white text-center py-3">
     <div class="container">
         <h1>Votre Panier</h1>
     </div>
 </section>
 
 <!-- Panier Section -->
-<section class="py-5">
+<section class="py-3">
     <div class="container">
         {% if panier %}
         <table class="table table-striped">
@@ -45,7 +45,7 @@
             </tfoot>
         </table>
         <form action="{{ url_for('main.commander') }}" method="POST">
-            <button type="submit" class="btn btn-success">Passer la commande</button>
+            <button type="submit" class="btn btn-primary">Passer la commande</button>
         </form>
         {% else %}
         <p>Votre panier est vide.</p>

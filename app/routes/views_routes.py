@@ -2,11 +2,13 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask_mail import Message
-from app import mail
+from app import mail, db
 from functools import wraps
 from app.utils import login_required
 from app.models import Produit, Utilisateur, Panier, db
 import os
+from app.routes.forms_routes import ConnexionForm, InscriptionForm, MotDePasseOublieForm, ReinitialisationMotDePasseForm, ContactForm
+
 
 main = Blueprint('main', __name__)
 
@@ -49,7 +51,6 @@ def recherche():
     ).all()
 
     return render_template('recherche.html', produits=produits, query=query)
-
 # Routes pour Mode (généralisation avec paramètre de genre)
 @main.route('/produits/mode/<genre>')
 def produits_mode(genre):
@@ -80,27 +81,36 @@ def produits_maison_bureau():
 # Inscription, connexion et déconnexion
 @main.route('/inscription', methods=['GET', 'POST'])
 def inscription():
-    if request.method == 'POST':
-        data = {
-            'email': request.form['email'],
-            'nom': request.form['nom'],
-            'prenom': request.form['prenom'],
-            'telephone': request.form['telephone'],
-            'adresse': request.form['adresse'],
-            'mot_de_passe': generate_password_hash(request.form['mot_de_passe'])
-        }
-        utilisateur = Utilisateur(**data)
+    form = InscriptionForm()
+    if form.validate_on_submit():
+        # Vérifier si l'email existe déjà
+        if Utilisateur.query.filter_by(email=form.email.data).first():
+            flash("Cet email est déjà utilisé.", 'danger')
+            return redirect(url_for('main.inscription'))
+        
+        # Enregistrer l'utilisateur
+        utilisateur = Utilisateur(
+            email=form.email.data,
+            nom=form.nom.data,
+            prenom=form.prenom.data,
+            telephone=form.telephone.data,
+            adresse=form.adresse.data,
+            mot_de_passe=generate_password_hash(form.mot_de_passe.data)
+        )
         db.session.add(utilisateur)
         db.session.commit()
+        
         flash("Inscription réussie !", 'success')
         return redirect(url_for('main.connexion'))
-    return render_template('inscription.html')
+    
+    return render_template('inscription.html', form=form)
 
 @main.route('/connexion', methods=['GET', 'POST'])
 def connexion():
-    if request.method == 'POST':
-        email = request.form['email']
-        mot_de_passe = request.form['mot_de_passe']
+    form = ConnexionForm()
+    if form.validate_on_submit():
+        email = form.email.data
+        mot_de_passe = form.mot_de_passe.data
         user = Utilisateur.query.filter_by(email=email).first()
         if user and check_password_hash(user.mot_de_passe, mot_de_passe):
             session['user_id'] = user.id
@@ -108,7 +118,8 @@ def connexion():
             flash("Connexion réussie !", 'success')
             return redirect(url_for('main.produits'))
         flash("Email ou mot de passe incorrect.", 'error')
-    return render_template('connexion.html')
+    return render_template('connexion.html', form=form)
+
 
 @main.route('/deconnexion')
 def deconnexion():
@@ -119,42 +130,50 @@ def deconnexion():
 #mot de passe oublie
 @main.route('/mot_de_passe_oublie', methods=['GET', 'POST'])
 def mot_de_passe_oublie():
-    if request.method == 'POST':
-        email = request.form['email']
-        user = execute_query("SELECT id FROM utilisateurs WHERE email = %s", (email,), fetch_one=True)
+    form = MotDePasseOublieForm()
+    if form.validate_on_submit():
+        email = form.email.data
+        user = Utilisateur.query.filter_by(email=email).first()
+
         if user:
-            token = generate_password_hash(email)  # Utilisez un token pour sécuriser le processus
-            reset_url = url_for('reinitialiser_mot_de_passe', token=token, _external=True)
-            msg = Message('Réinitialisation de votre mot de passe', sender='noreply@demo.com', recipients=[email])
-            msg.body = f"Pour réinitialiser votre mot de passe, cliquez sur le lien suivant : {reset_url}"
+            token = generate_password_hash(email)  # Générer un token sécurisé
+            reset_url = url_for('main.reinitialiser_mot_de_passe', token=token, _external=True)
+            msg = Message(
+                'Réinitialisation de votre mot de passe',
+                sender='noreply@demo.com',
+                recipients=[email]
+            )
+            msg.body = f"Pour réinitialiser votre mot de passe, cliquez sur ce lien : {reset_url}"
             mail.send(msg)
-            flash("Un email avec les instructions pour réinitialiser votre mot de passe a été envoyé.", 'success')
+
+            flash("Un email avec les instructions de réinitialisation a été envoyé.", 'success')
         else:
-            flash("Aucun compte associé à cet email.", 'error')
-    return render_template('mot_de_passe_oublie.html')
+            flash("Aucun compte trouvé avec cet email.", 'danger')
+
+        return redirect(url_for('main.mot_de_passe_oublie'))
+
+    return render_template('mot_de_passe_oublie.html', form=form)
 
 # Réinitialiser mot de passe
 @main.route('/reinitialiser_mot_de_passe/<token>', methods=['GET', 'POST'])
 def reinitialiser_mot_de_passe(token):
-    if request.method == 'POST':
-        mot_de_passe = request.form['mot_de_passe']
-        confirmer_mot_de_passe = request.form['confirmer_mot_de_passe']
-        
-        if mot_de_passe != confirmer_mot_de_passe:
-            flash("Les mots de passe ne correspondent pas.", 'error')
-            return redirect(url_for('admin.reinitialiser_mot_de_passe', token=token))
-        
-        email = request.form['email']
-        hashed_password = generate_password_hash(mot_de_passe)
+    form = ReinitialisationMotDePasseForm()
+
+    if form.validate_on_submit():
+        email = form.email.data
+        mot_de_passe = form.mot_de_passe.data
+
         utilisateur = Utilisateur.query.filter_by(email=email).first()
+
         if utilisateur:
-            utilisateur.mot_de_passe = hashed_password
+            utilisateur.mot_de_passe = generate_password_hash(mot_de_passe)
             db.session.commit()
             flash("Votre mot de passe a été réinitialisé avec succès.", 'success')
             return redirect(url_for('main.connexion'))
         else:
-            flash("Utilisateur non trouvé.", 'error')
-    return render_template('reinitialiser_mot_de_passe.html', token=token)
+            flash("Utilisateur non trouvé.", 'danger')
+
+    return render_template('reinitialiser_mot_de_passe.html', form=form, token=token)
 
 # Route pour afficher le panier
 @main.route('/panier')
@@ -277,33 +296,24 @@ def commander():
 # Route pour nous contacter
 @main.route('/contact', methods=['GET', 'POST'])
 def contact():
-    if request.method == 'POST':
-        nom = request.form['nom']
-        email = request.form['email']
-        sujet = request.form['sujet']
-        message = request.form['message']
+    form = ContactForm()
+    if form.validate_on_submit():
+        nom = form.nom.data
+        email = form.email.data
+        sujet = form.sujet.data
+        message = form.message.data
 
-        # Envoi d'un email avec les informations de contact
+        # Envoi d'un email
         msg = Message(sujet, sender=email, recipients=['contact@visitech.com'])
         msg.body = f"Message de {nom} ({email}):\n\n{message}"
         mail.send(msg)
 
-        flash("Votre message a été envoyé.", 'success')
+        flash("Votre message a été envoyé avec succès.", 'success')
         return redirect(url_for('main.contact'))
-    return render_template('contact.html')
+
+    return render_template('contact.html', form=form)
 
 # A propos
 @main.route('/a-propos')
 def a_propos():
     return render_template('a_propos.html')
-
-# Routes pour gérer les erreurs
-@main.errorhandler(404)
-def page_not_found(e):
-    return render_template('404.html'), 404
-
-@main.errorhandler(Exception)
-def handle_exception(e):
-    db.session.rollback()  # Annulez les transactions en cas d'erreur
-    current_app.logger.error(f"Erreur : {e}")
-    return render_template('500.html'), 500
